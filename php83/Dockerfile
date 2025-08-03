@@ -1,13 +1,13 @@
 FROM docker-registry.wikimedia.org/bullseye:latest
 
-ENV PHP_VERSION=8.1
+ENV PHP_VERSION=8.3
 
 # Note that WMF APT key is pre-installed.
 # See: https://wikitech.wikimedia.org/wiki/APT_repository#Security
 
 # Does not have arm images using 3rd party instead
-#RUN echo "deb https://apt.wikimedia.org/wikimedia bullseye-wikimedia component/php81" \
-#   > /etc/apt/sources.list.d/wikimedia-php81.list
+#RUN echo "deb https://apt.wikimedia.org/wikimedia bullseye-wikimedia component/php83" \
+#   > /etc/apt/sources.list.d/wikimedia-php83.list
 
 RUN apt-get update && apt-get install -yq curl \
 wget \
@@ -21,34 +21,34 @@ RUN curl -s https://packages.sury.org/php/apt.gpg --output apt.gpg && APT_KEY_DO
 RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php8.list
 
 # Install PHP dependencies:
-RUN apt-get update && apt-get install -yq php8.1 \
-php8.1-cli \
-php8.1-common \
-php8.1-apcu \
-php8.1-bcmath \
-php8.1-cli \
-php8.1-curl \
-php8.1-dba \
-php8.1-gd \
-php8.1-gmp \
-php8.1-intl \
-php8.1-ldap \
-php8.1-mbstring \
-php8.1-mysql \
-php8.1-pgsql \
-php8.1-sqlite3 \
-php8.1-xml \
-php8.1-zip \
-php8.1-redis \
-php8.1-dev \
-php8.1-ldap \
-php8.1-mysql \
-php8.1-pgsql \
-php8.1-dev \
+RUN apt-get update && apt-get install -yq php8.3 \
+php8.3-cli \
+php8.3-common \
+php8.3-apcu \
+php8.3-bcmath \
+php8.3-cli \
+php8.3-curl \
+php8.3-dba \
+php8.3-gd \
+php8.3-gmp \
+php8.3-intl \
+php8.3-ldap \
+php8.3-mbstring \
+php8.3-mysql \
+php8.3-pgsql \
+php8.3-sqlite3 \
+php8.3-xml \
+php8.3-zip \
+php8.3-redis \
+php8.3-dev \
+php8.3-ldap \
+php8.3-mysql \
+php8.3-pgsql \
+php8.3-dev \
 sed \
 build-essential
 
-RUN update-alternatives --set php /usr/bin/php8.1
+RUN update-alternatives --set php /usr/bin/php8.3
 
 # install composer
 # see "command-line installation" https://getcomposer.org/download/

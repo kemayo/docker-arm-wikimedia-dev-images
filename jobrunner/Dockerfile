@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/bullseye-php81:1.0.0
+FROM docker-registry.wikimedia.org/dev/bullseye-php83:1.0.0
 
 RUN apt-get update && apt-get install -yq ffmpeg
 
