@@ -1,0 +1,4 @@
+deb http://mirrors.wikimedia.org/debian/ bookworm main
+deb http://mirrors.wikimedia.org/debian/ bookworm-updates main
+deb http://mirrors.wikimedia.org/debian/ bookworm-backports main contrib
+deb http://apt.wikimedia.org/wikimedia bookworm-wikimedia main

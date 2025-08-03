@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/bullseye-php83:1.0.0
+FROM docker-registry.wikimedia.org/dev/bookworm-php83:1.0.0
 
 # We don't want the default index.html for running PHP applications, and
 # xdebug is a major performance drag, so disable it here (it's already

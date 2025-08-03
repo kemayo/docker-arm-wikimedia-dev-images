@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/bullseye:latest
+FROM docker-registry.wikimedia.org/bookworm:latest
 
 ENV PHP_VERSION=8.3
 
@@ -6,7 +6,7 @@ ENV PHP_VERSION=8.3
 # See: https://wikitech.wikimedia.org/wiki/APT_repository#Security
 
 # Does not have arm images using 3rd party instead
-#RUN echo "deb https://apt.wikimedia.org/wikimedia bullseye-wikimedia component/php83" \
+#RUN echo "deb https://apt.wikimedia.org/wikimedia bookworm-wikimedia component/php83" \
 #   > /etc/apt/sources.list.d/wikimedia-php83.list
 
 RUN apt-get update && apt-get install -yq curl \
