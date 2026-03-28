@@ -1,5 +1,7 @@
 FROM docker-registry.wikimedia.org/dev/bookworm-php83:1.0.0
 
+ENV XDEBUG_MODE=off
+
 # We don't want the default index.html for running PHP applications, and
 # xdebug is a major performance drag, so disable it here (it's already
 # been disabled for CLI PHP in bullseye-php81).
