@@ -15,14 +15,14 @@ phpFpmImg="${REGISTRY}/dev/${DISTRO}-php83-fpm"
 phpFpmTag="1.0.0-arm1"
 phpJobRunnerImg="${REGISTRY}/dev/${DISTRO}-php83-jobrunner"
 phpJobRunnerTag="1.0.0-arm1"
-## Remove old images (ignore errors if images don't exist)
-docker rmi "${imgFull}" || true
-docker rmi "${img}:latest" || true
-docker rmi "${imgTag}:latest" || true
-docker rmi "${apache2Img}:${apache2Tag}" || true
-docker rmi "${phpImg}:${phpTag}" || true
-docker rmi "${phpFpmImg}:${phpFpmTag}" || true
-docker rmi "${phpJobRunnerImg}:${phpJobRunnerTag}" || true
+## Remove old images (silently ignore if images don't exist)
+docker rmi "${imgFull}" 2>/dev/null || true
+docker rmi "${img}:latest" 2>/dev/null || true
+docker rmi "${imgTag}:latest" 2>/dev/null || true
+docker rmi "${apache2Img}:${apache2Tag}" 2>/dev/null || true
+docker rmi "${phpImg}:${phpTag}" 2>/dev/null || true
+docker rmi "${phpFpmImg}:${phpFpmTag}" 2>/dev/null || true
+docker rmi "${phpJobRunnerImg}:${phpJobRunnerTag}" 2>/dev/null || true
 ## Building Core image
 echo "Building Core ${DISTRO} image ${imgFull}"
 docker build . -f ${DISTRO}/Dockerfile -t "${imgFull}"
@@ -43,8 +43,8 @@ docker build . -f fpm/Dockerfile -t "${phpFpmImg}:${phpFpmTag}"
 echo "Building php8.3 Job Runner ${DISTRO} image ${phpJobRunnerImg}:${phpJobRunnerTag}"
 docker build . -f jobrunner/Dockerfile -t "${phpJobRunnerImg}:${phpJobRunnerTag}"
 
-## Remove unused images (ignore errors if images don't exist)
-docker rmi "${imgFull}" || true
-docker rmi "${img}:latest" || true
-docker rmi "${imgTag}:latest" || true
-docker rmi "${phpImg}:${phpTag}" || true
+## Remove unused images (silently ignore if images don't exist)
+docker rmi "${imgFull}" 2>/dev/null || true
+docker rmi "${img}:latest" 2>/dev/null || true
+docker rmi "${imgTag}:latest" 2>/dev/null || true
+docker rmi "${phpImg}:${phpTag}" 2>/dev/null || true
