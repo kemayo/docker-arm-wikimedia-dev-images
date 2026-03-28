@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 REGISTRY=docker-registry.wikimedia.org
 DISTRO=bookworm
 dateToday=$(date -u +%Y%m%d)
@@ -13,14 +15,14 @@ phpFpmImg="${REGISTRY}/dev/${DISTRO}-php83-fpm"
 phpFpmTag="1.0.0-arm1"
 phpJobRunnerImg="${REGISTRY}/dev/${DISTRO}-php83-jobrunner"
 phpJobRunnerTag="1.0.0-arm1"
-## Remove old images
-docker rmi "${imgFull}"
-docker rmi "${img}:latest"
-docker rmi "${imgTag}:latest"
-docker rmi "${apache2Img}:${apache2Tag}"
-docker rmi "${phpImg}:${phpTag}"
-docker rmi "${phpFpmImg}:${phpFpmTag}"
-docker rmi "${phpJobRunnerImg}:${phpJobRunnerTag}"
+## Remove old images (ignore errors if images don't exist)
+docker rmi "${imgFull}" || true
+docker rmi "${img}:latest" || true
+docker rmi "${imgTag}:latest" || true
+docker rmi "${apache2Img}:${apache2Tag}" || true
+docker rmi "${phpImg}:${phpTag}" || true
+docker rmi "${phpFpmImg}:${phpFpmTag}" || true
+docker rmi "${phpJobRunnerImg}:${phpJobRunnerTag}" || true
 ## Building Core image
 echo "Building Core ${DISTRO} image ${imgFull}"
 docker build . -f ${DISTRO}/Dockerfile -t "${imgFull}"
@@ -41,8 +43,8 @@ docker build . -f fpm/Dockerfile -t "${phpFpmImg}:${phpFpmTag}"
 echo "Building php8.3 Job Runner ${DISTRO} image ${phpJobRunnerImg}:${phpJobRunnerTag}"
 docker build . -f jobrunner/Dockerfile -t "${phpJobRunnerImg}:${phpJobRunnerTag}"
 
-## Remove unused images
-docker rmi "${imgFull}"
-docker rmi "${img}:latest"
-docker rmi "${imgTag}:latest"
-docker rmi "${phpImg}:${phpTag}"
+## Remove unused images (ignore errors if images don't exist)
+docker rmi "${imgFull}" || true
+docker rmi "${img}:latest" || true
+docker rmi "${imgTag}:latest" || true
+docker rmi "${phpImg}:${phpTag}" || true
