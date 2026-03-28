@@ -6,7 +6,7 @@ ENV XDEBUG_MODE=off
 # xdebug is a major performance drag, so disable it here (it's already
 # been disabled for CLI PHP in bullseye-php81).
 
-RUN apt-get update && apt-get install -yq php8.3-fpm
+RUN apt-get update && apt-get install -yq php8.3-fpm php-pear
 
 # php-fpm configuration:
 COPY ../files/mediawiki-fpm/docker/20-xdebug.ini /docker/20-xdebug.ini
@@ -24,9 +24,6 @@ zlib.output_compression=On\n\
 upload_max_filesize=100M\n\
 post_max_size=100M\n\
 extension=ast.so\n' | tee -a /etc/php/8.3/fpm/php.ini /etc/php/8.3/cli/php.ini
-
-#install PECL extensions
-RUN wget http://pear.php.net/go-pear.phar && php go-pear.phar && rm go-pear.phar
 
 # Install phan dependencies
 RUN pecl install ast
