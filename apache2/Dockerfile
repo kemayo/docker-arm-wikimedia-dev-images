@@ -3,15 +3,15 @@ FROM debian:bookworm
 # We don't want the default index.html for running PHP applications, and
 # xdebug is a major performance drag, so disable it here (it's already
 # been disabled for CLI PHP in stretch-php81).
-RUN apt-get update && apt-get install -yq --no-install-recommends dialog apt-utils
-
-RUN apt-get install -yq apache2 \
+RUN apt-get update && apt-get install -yq --no-install-recommends dialog apt-utils \
+    && apt-get install -yq apache2 \
     && rm /var/www/html/index.html \
     && a2enmod proxy_fcgi \
     && a2enmod mpm_event \
     && a2enmod rewrite \
     && a2enmod http2 \
-    && a2enmod cache
+    && a2enmod cache \
+    && rm -rf /var/lib/apt/lists/*
 
 # Apache configuration:
 COPY ../files/mediawiki-apache2/ports.conf /etc/apache2/ports.conf

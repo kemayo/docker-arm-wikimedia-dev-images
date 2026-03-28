@@ -10,11 +10,12 @@ ENV PHP_VERSION=8.3
 #   > /etc/apt/sources.list.d/wikimedia-php83.list
 
 RUN apt-get update && apt-get install -yq curl \
-wget \
-gnupg2 \
-ca-certificates \
-lsb-release \
-apt-transport-https
+    wget \
+    gnupg2 \
+    ca-certificates \
+    lsb-release \
+    apt-transport-https \
+    && rm -rf /var/lib/apt/lists/*
 
 
 RUN curl -s https://packages.sury.org/php/apt.gpg --output apt.gpg && APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add apt.gpg && rm apt.gpg
@@ -22,31 +23,27 @@ RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc
 
 # Install PHP dependencies:
 RUN apt-get update && apt-get install -yq php8.3 \
-php8.3-cli \
-php8.3-common \
-php8.3-apcu \
-php8.3-bcmath \
-php8.3-cli \
-php8.3-curl \
-php8.3-dba \
-php8.3-gd \
-php8.3-gmp \
-php8.3-intl \
-php8.3-ldap \
-php8.3-mbstring \
-php8.3-mysql \
-php8.3-pgsql \
-php8.3-sqlite3 \
-php8.3-xml \
-php8.3-zip \
-php8.3-redis \
-php8.3-dev \
-php8.3-ldap \
-php8.3-mysql \
-php8.3-pgsql \
-php8.3-dev \
-sed \
-build-essential
+    php8.3-cli \
+    php8.3-common \
+    php8.3-apcu \
+    php8.3-bcmath \
+    php8.3-curl \
+    php8.3-dba \
+    php8.3-gd \
+    php8.3-gmp \
+    php8.3-intl \
+    php8.3-ldap \
+    php8.3-mbstring \
+    php8.3-mysql \
+    php8.3-pgsql \
+    php8.3-sqlite3 \
+    php8.3-xml \
+    php8.3-zip \
+    php8.3-redis \
+    php8.3-dev \
+    sed \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --set php /usr/bin/php8.3
 

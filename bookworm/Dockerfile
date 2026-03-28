@@ -6,9 +6,9 @@ COPY ../files/mediawiki-bookworm/php_entrypoint.sh /php_entrypoint.sh
 
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/00InstallRecommends
 
-RUN apt-get update && apt-get install -yq --no-install-recommends dialog apt-utils
-
-RUN apt-get dist-upgrade -yq
+RUN apt-get update && apt-get install -yq --no-install-recommends dialog apt-utils \
+    && apt-get dist-upgrade -yq \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV LC_ALL=C.UTF-8
 
