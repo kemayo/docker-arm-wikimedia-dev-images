@@ -51,11 +51,10 @@ RUN update-alternatives --set php /usr/bin/php8.3
 
 # install composer
 # see "command-line installation" https://getcomposer.org/download/
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('sha384', 'composer-setup.php') === file_get_contents('https://composer.github.io/installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-
-RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-RUN php -r "unlink('composer-setup.php');"
+RUN curl -fsSL https://getcomposer.org/installer -o composer-setup.php \
+    && php -r "if (hash_file('sha384', 'composer-setup.php') !== trim(file_get_contents('https://composer.github.io/installer.sig'))) { echo 'Installer corrupt'; exit(1); }" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm composer-setup.php
 
 # Install PHP tools globally
 ## Linters and Code Chekers
