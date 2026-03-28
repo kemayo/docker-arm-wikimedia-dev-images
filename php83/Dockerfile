@@ -56,14 +56,11 @@ RUN curl -fsSL https://getcomposer.org/installer -o composer-setup.php \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && rm composer-setup.php
 
-# Install PHP tools globally
-## Linters and Code Chekers
-RUN composer global require "friendsofphp/php-cs-fixer"
-RUN composer global require "squizlabs/php_codesniffer"
-
-## Extra tools
-### Static Code analyzers : finds bugs in PHP code
-RUN composer global require "phpstan/phpstan"
-RUN composer global require "phpmd/phpmd"
-RUN composer global require "vimeo/psalm"
+# Install PHP tools globally (linters, static analyzers)
+RUN composer global require \
+    "friendsofphp/php-cs-fixer" \
+    "squizlabs/php_codesniffer" \
+    "phpstan/phpstan" \
+    "phpmd/phpmd" \
+    "vimeo/psalm"
 ENV PATH="/root/.composer/vendor/bin:$PATH"
