@@ -18,8 +18,10 @@ RUN apt-get update && apt-get install -yq curl \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN curl -s https://packages.sury.org/php/apt.gpg --output apt.gpg && APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add apt.gpg && rm apt.gpg
-RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php8.list
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://packages.sury.org/php/apt.gpg -o /etc/apt/keyrings/sury-php.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/sury-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" \
+       > /etc/apt/sources.list.d/php8.list
 
 # Install PHP dependencies:
 RUN apt-get update && apt-get install -yq php8.3 \
