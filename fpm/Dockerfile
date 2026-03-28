@@ -26,26 +26,20 @@ upload_max_filesize=100M\n\
 post_max_size=100M\n\
 extension=ast.so\n' | tee -a /etc/php/8.3/fpm/php.ini /etc/php/8.3/cli/php.ini
 
-# Install phan dependencies
-RUN pecl install ast
-
-# install Xdebug and xhprof
-RUN test -f "/etc/php/8.3/fpm/conf.d/20-xdebug.ini" && rm "/etc/php/8.3/fpm/conf.d/20-xdebug.ini" || true
-RUN pecl install xdebug-3.4.5
-
-## install xhprof (tideways forked xhprof and is maintaining it for php8+)
-RUN curl "https://github.com/tideways/php-xhprof-extension/archive/v5.0.4.tar.gz" -fsL -o ./a.tar.gz && \
-    tar xf ./a.tar.gz && \
-    ls -la && cd ./php-xhprof-extension-5.0.4 && \
-    ls -la && \
-    phpize && \
-    ./configure && \
-    make && \
-    make install && \
-    cd .. && rm -rf ./a.tar.gz ./php-xhprof-extension-5.0.4
-
-RUN ln -s /docker/20-xdebug.ini "/etc/php/$PHP_VERSION/fpm/conf.d/20-xdebug.ini"
-RUN ln -s /docker/20-xdebug.ini "/etc/php/$PHP_VERSION/cli/conf.d/20-xdebug.ini"
+# Install PECL extensions: ast (for phan), xdebug, xhprof
+RUN (test -f "/etc/php/8.3/fpm/conf.d/20-xdebug.ini" && rm "/etc/php/8.3/fpm/conf.d/20-xdebug.ini" || true) \
+    && pecl install ast \
+    && pecl install xdebug-3.4.5 \
+    && curl "https://github.com/tideways/php-xhprof-extension/archive/v5.0.4.tar.gz" -fsL -o ./xhprof.tar.gz \
+    && tar xf ./xhprof.tar.gz \
+    && cd ./php-xhprof-extension-5.0.4 \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && cd .. && rm -rf ./xhprof.tar.gz ./php-xhprof-extension-5.0.4 \
+    && ln -s /docker/20-xdebug.ini "/etc/php/$PHP_VERSION/fpm/conf.d/20-xdebug.ini" \
+    && ln -s /docker/20-xdebug.ini "/etc/php/$PHP_VERSION/cli/conf.d/20-xdebug.ini"
 
 EXPOSE 9000
 EXPOSE 9003
