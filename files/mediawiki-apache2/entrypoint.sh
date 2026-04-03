@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# When the container runs as a non-root user (e.g. via docker-compose user:),
-# Apache cannot chown socket files to www-data. Set the run user/group to
-# match the actual process identity so no chown is attempted.
-# If running as root, leave the defaults so Apache drops privileges to www-data normally.
+# When running as a non-root user (e.g. via docker-compose user:), bypass
+# apache2ctl entirely — it unconditionally shell-chowns the run directory, but
+# the shell chown command doesn't understand Apache's #UID numeric user syntax.
+# Instead: source envvars ourselves, override the run user/group, create the run
+# directory, then exec apache2 directly.
 if [ "$(id -u)" != "0" ]; then
+    . /etc/apache2/envvars
     export APACHE_RUN_USER="#$(id -u)"
     export APACHE_RUN_GROUP="#$(id -g)"
+    mkdir -p "$APACHE_RUN_DIR"
+    exec /usr/sbin/apache2 -D FOREGROUND
 fi
 
-/usr/sbin/apache2ctl -D FOREGROUND
+exec /usr/sbin/apache2ctl -D FOREGROUND
