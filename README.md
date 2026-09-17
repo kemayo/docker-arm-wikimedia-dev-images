@@ -13,6 +13,29 @@ SyntaxHighlight_GeSHi needs it for its bundled `pygmentize` script. The
 python3 layer is a separate image, so the mirrors stay faithful to upstream.
 Use the plain tags if you do not want it.
 
+## Keeping up with upstream
+
+Most files in `files/` are copies of upstream files, and the tags in
+`build.sh` come from the upstream changelogs. `check-drift.sh` compares both
+with the upstream commit in `upstream.pin`:
+
+```shell
+./check-drift.sh
+```
+
+It reports local copies that no longer match the pin, upstream changes made
+after the pin, and image versions that upstream bumped. It exits non-zero
+when it finds drift. Apply the changes by hand, then move the pin:
+
+```shell
+./check-drift.sh --update-pin
+```
+
+Three files stay different on purpose: the FPM pool size and error log in
+`www.conf`, and the non-root run user in `apache2.conf` and the Apache
+`entrypoint.sh`. The script lists upstream changes to these for review
+instead of expecting them to match.
+
 ## How to use Arm Docker images in your project
 
 - Run the following to create local images
