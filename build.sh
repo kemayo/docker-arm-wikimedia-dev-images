@@ -18,6 +18,8 @@ phpFpmImg="${REGISTRY}/dev/${DISTRO}-php85-fpm"
 phpFpmTag="1.0.0-arm1"
 phpJobRunnerImg="${REGISTRY}/dev/${DISTRO}-php85-jobrunner"
 phpJobRunnerTag="1.0.0-arm1"
+# Suffix for the local python3 images, derived from the mirrors above.
+python3Suffix="-python3"
 ## Remove old images (silently ignore if images don't exist)
 docker rmi "${imgFull}" 2>/dev/null || true
 docker rmi "${img}:latest" 2>/dev/null || true
@@ -51,6 +53,15 @@ docker build . -f fpm/Dockerfile -t "${phpFpmImg}:${phpFpmTag}"
 ## Building php8.5 Job Runner image
 echo "Building php8.5 Job Runner ${DISTRO} image ${phpJobRunnerImg}:${phpJobRunnerTag}"
 docker build . -f jobrunner/Dockerfile -t "${phpJobRunnerImg}:${phpJobRunnerTag}"
+## Building the python3 variants of the FPM and Job Runner images
+echo "Building python3 variant ${phpFpmImg}:${phpFpmTag}${python3Suffix}"
+docker build . -f python3/Dockerfile \
+    --build-arg BASE_IMAGE="${phpFpmImg}:${phpFpmTag}" \
+    -t "${phpFpmImg}:${phpFpmTag}${python3Suffix}"
+echo "Building python3 variant ${phpJobRunnerImg}:${phpJobRunnerTag}${python3Suffix}"
+docker build . -f python3/Dockerfile \
+    --build-arg BASE_IMAGE="${phpJobRunnerImg}:${phpJobRunnerTag}" \
+    -t "${phpJobRunnerImg}:${phpJobRunnerTag}${python3Suffix}"
 
 ## Remove unused images (silently ignore if images don't exist)
 docker rmi "${imgFull}" 2>/dev/null || true

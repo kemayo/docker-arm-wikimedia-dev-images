@@ -7,6 +7,12 @@ Tags keep the upstream version and add an `-arm1` suffix. The main difference:
 upstream installs PHP from `apt.wikimedia.org`, which has no arm64 packages, so
 these images install PHP from [Sury](https://packages.sury.org/php/) instead.
 
+The build also makes `-python3` variants of the FPM and job runner images.
+Upstream installs no python3, but the production servers have it, and
+SyntaxHighlight_GeSHi needs it for its bundled `pygmentize` script. The
+python3 layer is a separate image, so the mirrors stay faithful to upstream.
+Use the plain tags if you do not want it.
+
 ## How to use Arm Docker images in your project
 
 - Run the following to create local images
@@ -19,11 +25,11 @@ these images install PHP from [Sury](https://packages.sury.org/php/) instead.
     ```yaml
     services:
       mediawiki:
-        image: docker-registry.wikimedia.org/dev/bookworm-php85-fpm:1.0.0-arm1
+        image: docker-registry.wikimedia.org/dev/bookworm-php85-fpm:1.0.0-arm1-python3
       mediawiki-web:
         image: docker-registry.wikimedia.org/dev/bookworm-apache2:1.0.1-s3-arm1
       mediawiki-jobrunner:
-        image: docker-registry.wikimedia.org/dev/bookworm-php85-jobrunner:1.0.0-arm1
+        image: docker-registry.wikimedia.org/dev/bookworm-php85-jobrunner:1.0.0-arm1-python3
     ```
 
 - Shutdown the current containers:
