@@ -27,6 +27,7 @@ COPY ../files/mediawiki-bookworm/docker/ /docker/
 
 # Entrypoint for PHP-FPM
 COPY ../files/mediawiki-bookworm/php_entrypoint.sh /php_entrypoint.sh
+RUN chmod +x /php_entrypoint.sh
 
 # Install composer:
 COPY ../files/mediawiki-bookworm/composer.phar.sha256sum /srv/composer/composer.phar.sha256sum
