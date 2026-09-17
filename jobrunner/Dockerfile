@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/bookworm-php83:1.0.0
+FROM docker-registry.wikimedia.org/dev/bookworm-php85:1.0.0-arm1
 
 RUN apt-get update && apt-get install -yq ffmpeg \
     && rm -rf /var/lib/apt/lists/*

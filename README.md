@@ -19,11 +19,11 @@ these images install PHP from [Sury](https://packages.sury.org/php/) instead.
     ```yaml
     services:
       mediawiki:
-        image: docker-registry.wikimedia.org/dev/bookworm-php83-fpm:1.0.0-arm1
+        image: docker-registry.wikimedia.org/dev/bookworm-php85-fpm:1.0.0-arm1
       mediawiki-web:
         image: docker-registry.wikimedia.org/dev/bookworm-apache2:1.0.1-s3-arm1
       mediawiki-jobrunner:
-        image: docker-registry.wikimedia.org/dev/bookworm-php83-jobrunner:1.0.0-arm1
+        image: docker-registry.wikimedia.org/dev/bookworm-php85-jobrunner:1.0.0-arm1
     ```
 
 - Shutdown the current containers:
