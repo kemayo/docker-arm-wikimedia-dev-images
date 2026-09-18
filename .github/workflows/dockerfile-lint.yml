@@ -1,0 +1,52 @@
+name: Dockerfile Lint
+
+on:
+  pull_request:
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/dockerfile-lint.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/dockerfile-lint.yml"
+
+jobs:
+  lint-dockerfiles:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint all Dockerfiles
+        uses: hadolint/hadolint-action@v3.3.0
+        with:
+          dockerfile: Dockerfile
+          recursive: true
+          no-fail: true
+          format: json
+          output-file: hadolint-results.json
+
+      - name: Show error-level findings only
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -s hadolint-results.json ]; then
+            echo "No hadolint findings."
+            exit 0
+          fi
+
+          error_count=$(jq '[.[] | select(.level == "error")] | length' hadolint-results.json)
+
+          if [ "$error_count" -eq 0 ]; then
+            echo "No hadolint error-level findings."
+            exit 0
+          fi
+
+          jq -r '.[] | select(.level == "error") | "\(.file):\(.line):\(.column) [\(.code)] \(.message)"' hadolint-results.json
+          exit 1
