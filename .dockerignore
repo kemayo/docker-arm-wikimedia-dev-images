@@ -1,0 +1,8 @@
+# docker build sends the whole directory to the daemon. Keep out the parts
+# that no Dockerfile copies. .gitignore has no effect here.
+.git
+.github
+.upstream
+.idea
+.claude
+.DS_Store
