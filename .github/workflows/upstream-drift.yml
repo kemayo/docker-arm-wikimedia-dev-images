@@ -1,0 +1,25 @@
+name: Upstream Drift
+
+# Drift comes from upstream, not from a patch, so this does not gate pull
+# requests. It runs weekly and on request.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  check-drift:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compare the copied files and the tags with upstream
+        run: ./check-drift.sh
