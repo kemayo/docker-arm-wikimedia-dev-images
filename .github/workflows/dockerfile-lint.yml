@@ -4,13 +4,19 @@ on:
   pull_request:
     paths:
       - "**/Dockerfile"
+      - ".hadolint.yaml"
       - ".github/workflows/dockerfile-lint.yml"
   push:
     branches:
       - main
     paths:
       - "**/Dockerfile"
+      - ".hadolint.yaml"
       - ".github/workflows/dockerfile-lint.yml"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
   lint-dockerfiles:
@@ -31,22 +37,34 @@ jobs:
           format: json
           output-file: hadolint-results.json
 
-      - name: Show error-level findings only
+      - name: Show the findings
         shell: bash
         run: |
           set -euo pipefail
 
+          # hadolint lists only the files that have findings, so count the
+          # Dockerfiles here. A count of zero means the search found nothing
+          # and the job would pass without a check.
+          count=$(git ls-files "**/Dockerfile" | wc -l | tr -d ' ')
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No Dockerfile found. The recursive search matched nothing."
+            exit 1
+          fi
+          echo "Checked $count Dockerfile(s)."
+
           if [ ! -s hadolint-results.json ]; then
-            echo "No hadolint findings."
+            echo "No findings."
             exit 0
           fi
 
-          error_count=$(jq '[.[] | select(.level == "error")] | length' hadolint-results.json)
+          # Put every finding on the diff, but fail only on the errors.
+          # The info and style findings become notices, to keep the warnings
+          # for the faults that need work.
+          jq -r '.[] | "::\(.level | if . == "error" then "error" elif . == "warning" then "warning" else "notice" end) file=\(.file),line=\(.line),col=\(.column)::[\(.code)] \(.message)"' \
+              hadolint-results.json
 
-          if [ "$error_count" -eq 0 ]; then
-            echo "No hadolint error-level findings."
-            exit 0
+          errors=$(jq '[.[] | select(.level == "error")] | length' hadolint-results.json)
+          if [ "$errors" -ne 0 ]; then
+            echo "$errors error-level finding(s)."
+            exit 1
           fi
-
-          jq -r '.[] | select(.level == "error") | "\(.file):\(.line):\(.column) [\(.code)] \(.message)"' hadolint-results.json
-          exit 1

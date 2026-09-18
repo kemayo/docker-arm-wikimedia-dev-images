@@ -1,0 +1,7 @@
+ignored:
+  # These images do not pin apt versions. They follow the Sury repository,
+  # which moves, and a pin would break every build after an upload.
+  - DL3008
+  # "bookworm:latest" is correct here. build.sh builds the base image and
+  # gives it that tag, so the child images take the local build.
+  - DL3006
