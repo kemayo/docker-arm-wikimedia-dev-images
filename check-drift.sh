@@ -90,9 +90,10 @@ normalize_path() {
     echo "${out[*]}"
 }
 
-# Read one file out of the upstream cache at a given commit. Upstream keeps
-# shared files as symlinks into common/, so follow the link.
-upstream_file() {
+# Find the real path of one upstream file at a given commit. Upstream keeps
+# shared files as symlinks into common/, so follow the link. Print nothing
+# if the file does not exist.
+upstream_resolve() {
     local ref="$1" path="dockerfiles/$2" mode target i
     for i in 1 2 3 4 5; do
         mode=$(git -C "$CACHE" ls-tree "$ref" -- "$path" | awk '{print $1}')
@@ -101,7 +102,29 @@ upstream_file() {
         target=$(git -C "$CACHE" show "${ref}:${path}")
         path=$(normalize_path "${path%/*}/${target}")
     done
-    git -C "$CACHE" show "${ref}:${path}" 2>/dev/null || true
+    echo "$path"
+}
+
+# Read one file out of the upstream cache at a given commit.
+upstream_file() {
+    local path
+    path=$(upstream_resolve "$1" "$2")
+    [ -z "$path" ] && return 0
+    git -C "$CACHE" show "${1}:${path}" 2>/dev/null || true
+}
+
+# Read the mode of one upstream file, after the symlinks.
+upstream_mode() {
+    local path
+    path=$(upstream_resolve "$1" "$2")
+    [ -z "$path" ] && return 0
+    git -C "$CACHE" ls-tree "$1" -- "$path" | awk '{print $1}'
+}
+
+# Read the mode that this repository records for a local file. Git keeps only
+# the execute bit, which is the part that COPY puts into the image.
+local_mode() {
+    git ls-files -s -- "$1" | awk '{print $1}'
 }
 
 # Read the version from the first line of an upstream changelog.
@@ -130,21 +153,46 @@ found=0
 echo "== Copied files that no longer match the pin =="
 while read -r lpath upath; do
     [ -z "$lpath" ] && continue
+    reason=""
     if ! upstream_file "$PIN" "$upath" | diff -q - "$lpath" >/dev/null 2>&1; then
-        echo "  $lpath"
+        reason="content"
+    fi
+    umode=$(upstream_mode "$PIN" "$upath")
+    lmode=$(local_mode "$lpath")
+    if [ -n "$umode" ] && [ -n "$lmode" ] && [ "$umode" != "$lmode" ]; then
+        reason="${reason:+$reason, }mode $lmode, upstream $umode"
+    fi
+    if [ -n "$reason" ]; then
+        echo "  $lpath ($reason)"
         found=1
     fi
 done <<< "$COPIED"
 [ "$found" = 0 ] && echo "  (none)" || drift=1
 echo
 
+# Say how upstream changed one file after the pin. Print nothing if it is
+# the same.
+upstream_change() {
+    local upath="$1" pinmode newmode reason=""
+    if ! diff -q <(upstream_file "$PIN" "$upath") \
+                 <(upstream_file "$HEAD_SHA" "$upath") >/dev/null 2>&1; then
+        reason="content"
+    fi
+    pinmode=$(upstream_mode "$PIN" "$upath")
+    newmode=$(upstream_mode "$HEAD_SHA" "$upath")
+    if [ -n "$pinmode" ] && [ -n "$newmode" ] && [ "$pinmode" != "$newmode" ]; then
+        reason="${reason:+$reason, }mode $pinmode -> $newmode"
+    fi
+    echo "$reason"
+}
+
 report_pairs() {
-    local action="$1" pairs="$2" lpath upath
+    local action="$1" pairs="$2" lpath upath reason
     while read -r lpath upath; do
         [ -z "$lpath" ] && continue
-        if ! diff -q <(upstream_file "$PIN" "$upath") \
-                     <(upstream_file "$HEAD_SHA" "$upath") >/dev/null 2>&1; then
-            echo "  [$action] $upath -> $lpath"
+        reason=$(upstream_change "$upath")
+        if [ -n "$reason" ]; then
+            echo "  [$action] $upath -> $lpath ($reason)"
             found=1
         fi
     done <<< "$pairs"
@@ -156,9 +204,9 @@ report_pairs copy "$COPIED"
 report_pairs review "$LOCAL"
 while read -r tpl; do
     [ -z "$tpl" ] && continue
-    if ! diff -q <(upstream_file "$PIN" "$tpl") \
-                 <(upstream_file "$HEAD_SHA" "$tpl") >/dev/null 2>&1; then
-        echo "  [review] $tpl"
+    reason=$(upstream_change "$tpl")
+    if [ -n "$reason" ]; then
+        echo "  [review] $tpl ($reason)"
         found=1
     fi
 done <<< "$TEMPLATES"
