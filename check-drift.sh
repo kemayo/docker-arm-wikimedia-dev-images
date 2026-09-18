@@ -127,6 +127,33 @@ local_mode() {
     git ls-files -s -- "$1" | awk '{print $1}'
 }
 
+# Read the mode of a local file on disk. This is the mode that docker build
+# copies. It can differ from the index after "git update-index --chmod".
+disk_mode() {
+    [ -e "$1" ] || return 0
+    if [ -x "$1" ]; then
+        echo 100755
+    else
+        echo 100644
+    fi
+}
+
+# Compare the mode of a local file with the upstream file at the pin. Check
+# the index, which a clone gets, and then the disk, which docker build
+# copies. Print nothing if the modes agree.
+mode_reason() {
+    local lpath="$1" upath="$2" umode lmode dmode
+    umode=$(upstream_mode "$PIN" "$upath")
+    [ -z "$umode" ] && return 0
+    lmode=$(local_mode "$lpath")
+    dmode=$(disk_mode "$lpath")
+    if [ -n "$lmode" ] && [ "$lmode" != "$umode" ]; then
+        echo "mode $lmode, upstream $umode"
+    elif [ -n "$dmode" ] && [ "$dmode" != "$umode" ]; then
+        echo "mode $dmode on disk, upstream $umode"
+    fi
+}
+
 # Read the version from the first line of an upstream changelog.
 upstream_version() {
     upstream_file "$1" "${2}/changelog" | head -1 | sed -n 's/.*(\(.*\)).*/\1/p'
@@ -150,23 +177,31 @@ echo
 drift=0
 found=0
 
-echo "== Copied files that no longer match the pin =="
+echo "== Files that no longer match the pin =="
 while read -r lpath upath; do
     [ -z "$lpath" ] && continue
     reason=""
     if ! upstream_file "$PIN" "$upath" | diff -q - "$lpath" >/dev/null 2>&1; then
         reason="content"
     fi
-    umode=$(upstream_mode "$PIN" "$upath")
-    lmode=$(local_mode "$lpath")
-    if [ -n "$umode" ] && [ -n "$lmode" ] && [ "$umode" != "$lmode" ]; then
-        reason="${reason:+$reason, }mode $lmode, upstream $umode"
-    fi
+    mreason=$(mode_reason "$lpath" "$upath")
+    [ -n "$mreason" ] && reason="${reason:+$reason, }$mreason"
     if [ -n "$reason" ]; then
         echo "  $lpath ($reason)"
         found=1
     fi
 done <<< "$COPIED"
+
+# The LOCAL files hold different content on purpose, but the mode must still
+# agree with upstream.
+while read -r lpath upath; do
+    [ -z "$lpath" ] && continue
+    mreason=$(mode_reason "$lpath" "$upath")
+    if [ -n "$mreason" ]; then
+        echo "  $lpath ($mreason)"
+        found=1
+    fi
+done <<< "$LOCAL"
 [ "$found" = 0 ] && echo "  (none)" || drift=1
 echo
 
