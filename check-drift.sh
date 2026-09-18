@@ -94,8 +94,8 @@ normalize_path() {
 # shared files as symlinks into common/, so follow the link. Print nothing
 # if the file does not exist.
 upstream_resolve() {
-    local ref="$1" path="dockerfiles/$2" mode target i
-    for i in 1 2 3 4 5; do
+    local ref="$1" path="dockerfiles/$2" mode target
+    for _ in 1 2 3 4 5; do
         mode=$(git -C "$CACHE" ls-tree "$ref" -- "$path" | awk '{print $1}')
         [ -z "$mode" ] && return 0
         [ "$mode" != 120000 ] && break
