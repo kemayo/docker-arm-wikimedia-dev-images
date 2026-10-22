@@ -49,11 +49,11 @@ instead of expecting them to match.
     ```yaml
     services:
       mediawiki:
-        image: docker-registry.wikimedia.org/dev/trixie-php85-fpm:1.0.0-s1-arm1-python3
+        image: docker-registry.wikimedia.org/dev/trixie-php85-fpm:1.0.0-s2-arm1-python3
       mediawiki-web:
         image: docker-registry.wikimedia.org/dev/trixie-apache2:1.0.0-s1-arm1
       mediawiki-jobrunner:
-        image: docker-registry.wikimedia.org/dev/trixie-php85-jobrunner:1.0.0-s1-arm1-python3
+        image: docker-registry.wikimedia.org/dev/trixie-php85-jobrunner:1.0.0-s2-arm1-python3
     ```
 
 - Shutdown the current containers:

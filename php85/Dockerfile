@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/trixie-php-sury:1.0.0-s1-arm1
+FROM docker-registry.wikimedia.org/dev/trixie-php-sury:1.0.0-s2-arm1
 
 ENV PHP_VERSION=8.5
 

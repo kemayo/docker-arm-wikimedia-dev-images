@@ -1,4 +1,4 @@
 # Upstream dev-images commit that these mirrors follow.
 # Run ./check-drift.sh to see what changed after this commit.
 # Run ./check-drift.sh --update-pin after you apply the upstream changes.
-a8c60b83432a65544d25e27601456d62dd2add5e
+de893d7c995bf8386aed4809b3644f6394d85ad1
