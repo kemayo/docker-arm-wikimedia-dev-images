@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/trixie-php85:1.0.0-s2-arm1
+FROM docker-registry.wikimedia.org/dev/trixie-php85:1.0.0-s3-arm1
 
 ENV XDEBUG_MODE=off
 
@@ -21,6 +21,7 @@ opcache.max_accelerated_files=24000\n\
 opcache.max_wasted_percentage=10\n\
 zlib.output_compression=On\n\
 upload_max_filesize=100M\n\
+session.upload_progress.enabled = Off\n\
 post_max_size=100M\n' | tee -a /etc/php/8.5/fpm/php.ini /etc/php/8.5/cli/php.ini
 
 RUN cp --force /docker/xdebug.ini "/etc/php/$PHP_VERSION/fpm/conf.d/20-xdebug.ini"
