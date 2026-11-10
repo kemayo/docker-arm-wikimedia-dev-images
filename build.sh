@@ -69,3 +69,23 @@ docker rmi "${img}:latest" 2>/dev/null || true
 docker rmi "${imgTag}:latest" 2>/dev/null || true
 docker rmi "${suryImg}:${suryTag}" 2>/dev/null || true
 docker rmi "${phpImg}:${phpTag}" 2>/dev/null || true
+
+## Summary
+cat <<EOF
+
+Built images:
+  ${apache2Img}:${apache2Tag}
+  ${phpFpmImg}:${phpFpmTag}
+  ${phpJobRunnerImg}:${phpJobRunnerTag}
+  ${phpFpmImg}:${phpFpmTag}${python3Suffix}
+  ${phpJobRunnerImg}:${phpJobRunnerTag}${python3Suffix}
+
+For docker-compose.override.yml:
+services:
+  mediawiki:
+    image: ${phpFpmImg}:${phpFpmTag}${python3Suffix}
+  mediawiki-web:
+    image: ${apache2Img}:${apache2Tag}
+  mediawiki-jobrunner:
+    image: ${phpJobRunnerImg}:${phpJobRunnerTag}${python3Suffix}
+EOF
