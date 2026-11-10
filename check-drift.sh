@@ -154,10 +154,28 @@ mode_reason() {
     fi
 }
 
+# Compare two files. Return 0 if they are the same and 1 if they differ.
+# Stop on an error: if a compare cannot run, every file looks changed.
+same_file() {
+    local rc=0
+    cmp -s "$1" "$2" || rc=$?
+    if [ "$rc" -gt 1 ]; then
+        echo "error: cannot compare $1 and $2" >&2
+        cmp "$1" "$2" >&2 || true
+        exit 2
+    fi
+    return "$rc"
+}
+
 # Read the version from the first line of an upstream changelog.
 upstream_version() {
     upstream_file "$1" "${2}/changelog" | head -1 | sed -n 's/.*(\(.*\)).*/\1/p'
 }
+
+# Some sandboxes do not let diff or cmp read stdin or /dev/fd, so write
+# the upstream files to disk before the compare.
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
 
 sync_cache
 PIN=$(grep -v '^#' "$PINFILE" | tr -d '[:space:]')
@@ -181,7 +199,10 @@ echo "== Files that no longer match the pin =="
 while read -r lpath upath; do
     [ -z "$lpath" ] && continue
     reason=""
-    if ! upstream_file "$PIN" "$upath" | diff -q - "$lpath" >/dev/null 2>&1; then
+    upstream_file "$PIN" "$upath" > "$TMP/pin"
+    if [ ! -e "$lpath" ]; then
+        reason="missing"
+    elif ! same_file "$TMP/pin" "$lpath"; then
         reason="content"
     fi
     mreason=$(mode_reason "$lpath" "$upath")
@@ -209,8 +230,9 @@ echo
 # the same.
 upstream_change() {
     local upath="$1" pinmode newmode reason=""
-    if ! diff -q <(upstream_file "$PIN" "$upath") \
-                 <(upstream_file "$HEAD_SHA" "$upath") >/dev/null 2>&1; then
+    upstream_file "$PIN" "$upath" > "$TMP/pin"
+    upstream_file "$HEAD_SHA" "$upath" > "$TMP/head"
+    if ! same_file "$TMP/pin" "$TMP/head"; then
         reason="content"
     fi
     pinmode=$(upstream_mode "$PIN" "$upath")
