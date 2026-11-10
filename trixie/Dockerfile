@@ -31,7 +31,7 @@ COPY ../files/mediawiki-trixie/php_entrypoint.sh /php_entrypoint.sh
 # Install composer:
 COPY ../files/mediawiki-trixie/composer.phar.sha256sum /srv/composer/composer.phar.sha256sum
 RUN cd /srv/composer \
-    && curl --silent --fail --output composer.phar https://getcomposer.org/download/2.10.2/composer.phar \
+    && curl --silent --fail --output composer.phar https://getcomposer.org/download/2.11.0/composer.phar \
     && sha256sum -c composer.phar.sha256sum \
     && chmod +x /srv/composer/composer.phar \
     && mv /srv/composer/composer.phar /usr/bin/composer

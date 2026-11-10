@@ -1,4 +1,4 @@
-FROM docker-registry.wikimedia.org/dev/trixie-php85:1.0.0-s3-arm1
+FROM docker-registry.wikimedia.org/dev/trixie-php85:1.0.0-s4-arm1
 
 ENV XDEBUG_MODE=off
 
